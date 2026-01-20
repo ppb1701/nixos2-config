@@ -3,6 +3,12 @@ let
   secrets = import /etc/nixos/private/secrets.nix;
 in
 {
+# ═══════════════════════════════════════════════════════════════════════════
+# NIXOS2-SPECIFIC SERVICE CONFIGURATION
+# Services disabled on this machine: nextcloud, vaultwarden, notediscovery
+# Can be quickly enabled if needed for failover
+# ═══════════════════════════════════════════════════════════════════════════
+
   # ═══════════════════════════════════════════════════════════════════════════
   # ADGUARD HOME - DNS FILTERING AND AD BLOCKING
   # ═══════════════════════════════════════════════════════════════════════════
@@ -73,7 +79,7 @@ in
   # VAULTWARDEN (Password Manager)
   # ═══════════════════════════════════════════════════════════════════════════
   services.vaultwarden = {
-    enable = true;
+    enable = false;
     backupDir = "/var/local/vaultwarden/backup";
   
     config = {
@@ -222,7 +228,7 @@ in
   # NTFY - SELF-HOSTED NOTIFICATION SERVICE
   # ═══════════════════════════════════════════════════════════════════════════
   services.ntfy-sh = {
-    enable = true;
+    enable = false;
     settings = {
       base-url = "http://ntfy2.home";
       listen-http = "0.0.0.0:2586";
@@ -239,81 +245,81 @@ in
   # ═══════════════════════════════════════════════════════════════════════════
 
   # One-time setup service - clones repo and installs dependencies
-  systemd.services.notediscovery-setup = {
-    description = "NoteDiscovery One-Time Setup";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
+#  systemd.services.notediscovery-setup = {
+#    description = "NoteDiscovery One-Time Setup";
+#    wantedBy = [ "multi-user.target" ];
+#    after = [ "network-online.target" ];
+#    wants = [ "network-online.target" ];
 
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      User = "notediscovery";
-      Group = "notediscovery";
-    };
+#    serviceConfig = {
+#      Type = "oneshot";
+#      RemainAfterExit = true;
+#      User = "notediscovery";
+#      Group = "notediscovery";
+#    };
 
-    path = with pkgs; [ git python3 ];
+#    path = with pkgs; [ git python3 ];
 
-    script = ''
-      if [ ! -d /var/lib/notediscovery/.git ]; then
-        echo "Cloning NoteDiscovery..."
-        ${pkgs.git}/bin/git clone https://github.com/gamosoft/NoteDiscovery.git /var/lib/notediscovery
-      fi
+#    script = ''
+#      if [ ! -d /var/lib/notediscovery/.git ]; then
+#        echo "Cloning NoteDiscovery..."
+#        ${pkgs.git}/bin/git clone https://github.com/gamosoft/NoteDiscovery.git /var/lib/notediscovery
+#      fi
 
-      if [ ! -d /var/lib/notediscovery/venv ]; then
-        echo "Creating Python virtual environment..."
-        ${pkgs.python3}/bin/python3 -m venv /var/lib/notediscovery/venv
-        /var/lib/notediscovery/venv/bin/pip install -r /var/lib/notediscovery/requirements.txt
-      fi
-    '';
-  };
+#      if [ ! -d /var/lib/notediscovery/venv ]; then
+#        echo "Creating Python virtual environment..."
+#        ${pkgs.python3}/bin/python3 -m venv /var/lib/notediscovery/venv
+#        /var/lib/notediscovery/venv/bin/pip install -r /var/lib/notediscovery/requirements.txt
+#      fi
+#    '';
+#  };
 
   # Main NoteDiscovery service
-  systemd.services.notediscovery = {
-    description = "NoteDiscovery Knowledge Base";
-    after = [ "network.target" "syncthing.service" "notediscovery-setup.service" ];
-    requires = [ "notediscovery-setup.service" ];
-    wantedBy = [ "multi-user.target" ];
+#  systemd.services.notediscovery = {
+#    description = "NoteDiscovery Knowledge Base";
+#    after = [ "network.target" "syncthing.service" "notediscovery-setup.service" ];
+#    requires = [ "notediscovery-setup.service" ];
+#    wantedBy = [ "multi-user.target" ];
 
-    serviceConfig = {
-      Type = "simple";
-      User = "notediscovery";
-      Group = "notediscovery";
-      WorkingDirectory = "/var/lib/notediscovery";
-      ExecStart = "/var/lib/notediscovery/venv/bin/python3 /var/lib/notediscovery/run.py";
-      Restart = "on-failure";
-      RestartSec = "10s";
+#    serviceConfig = {
+#      Type = "simple";
+#      User = "notediscovery";
+#      Group = "notediscovery";
+#      WorkingDirectory = "/var/lib/notediscovery";
+#      ExecStart = "/var/lib/notediscovery/venv/bin/python3 /var/lib/notediscovery/run.py";
+#      Restart = "on-failure";
+#      RestartSec = "10s";
 
       # Security hardening
-      NoNewPrivileges = true;
-      PrivateTmp = true;
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      ReadWritePaths = [
-        "/var/lib/notediscovery"
-        (import /etc/nixos/private/notediscovery-config.nix).notesPath
-      ];
-    };
+#      NoNewPrivileges = true;
+#      PrivateTmp = true;
+#      ProtectSystem = "strict";
+#      ProtectHome = true;
+#      ReadWritePaths = [
+#        "/var/lib/notediscovery"
+#        (import /etc/nixos/private/notediscovery-config.nix).notesPath
+#      ];
+#    };
 
-    environment = {
-      PYTHONUNBUFFERED = "1";
-      CONFIG_PATH = "/etc/nixos/private/notediscovery-config.yaml";
-      PORT = "5000";
-    };
-  };
+#    environment = {
+#      PYTHONUNBUFFERED = "1";
+#      CONFIG_PATH = "/etc/nixos/private/notediscovery-config.yaml";
+#      PORT = "5000";
+#    };
+#  };
 
   # Create the notediscovery user and set proper directory permissions
-  users.users.notediscovery = {
-    isSystemUser = true;
-    group = "notediscovery";
-    home = "/var/lib/notediscovery";
-    createHome = true;
-  };
+#  users.users.notediscovery = {
+#    isSystemUser = true;
+#    group = "notediscovery";
+#    home = "/var/lib/notediscovery";
+#    createHome = true;
+#  };
 
-  users.groups.notediscovery = {};
+#  users.groups.notediscovery = {};
 
   # Ensure proper permissions on the directory
-  systemd.tmpfiles.rules = [
-    "d /var/lib/notediscovery 0755 notediscovery notediscovery -"
-  ];
+#  systemd.tmpfiles.rules = [
+#    "d /var/lib/notediscovery 0755 notediscovery notediscovery -"
+#  ];
 }

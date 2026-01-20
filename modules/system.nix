@@ -122,14 +122,14 @@
   
 	# Create the mount point
   systemd.tmpfiles.rules = [
-    "d /mnt/nextcloud-data/data 0750 nextcloud nextcloud -"
+    "d /mnt/nextcloud-data/data 0755 ppb1701 users -"
     "d /var/local/vaultwarden 0755 vaultwarden vaultwarden -"
     "d /var/local/vaultwarden/backup 0755 vaultwarden vaultwarden -"
   ];
 
   # Mount the drive
   fileSystems."/mnt/nextcloud-data" = {
-    device = "/dev/disk/by-uuid/15d81dda-90c6-4993-9770-92841665e7b5";
+    device = "/dev/disk/by-uuid/13fbfda4-a589-4210-a27c-ae1ac770a1f8";
     fsType = "ext4";
     options = [ "defaults" "nofail" ];  # nofail prevents boot issues if drive is missing
   };
