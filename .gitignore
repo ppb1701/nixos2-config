@@ -1,0 +1,39 @@
+# .gitignore
+
+# Build artifacts
+result
+result-*
+*.iso
+
+# Nix build outputs
+/result/
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Private configuration
+private/syncthing-devices.nix
+private/*.nix
+!private/*.nix.example
+private/blog/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+hardware-configuration.nix
+chatlog.txt
+docs/BLOG-SERIES-PLAN.md
+private/BLOG-SERIES-PLAN.md
+private/alertmanager.env
+private/notediscovery-config.yaml
+private/nextcloud-admin-pass
+private/vaultwarden.env
+private/restic-password

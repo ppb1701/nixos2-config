@@ -1,0 +1,7 @@
+# Example Nextcloud admin password file
+# Copy to: /etc/nixos/private/nextcloud-admin-pass
+# Generate a real password with: openssl rand -base64 32
+# IMPORTANT: Set permissions to 644 (not 600!) for exporter access:
+#   sudo chmod 644 /etc/nixos/private/nextcloud-admin-pass
+
+changeme
