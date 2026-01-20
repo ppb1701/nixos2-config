@@ -1,21 +1,38 @@
 { config, pkgs, lib, ... }:
 
-{
-  # Force the hostname
-  networking.hostName = lib.mkForce "nixos2";
-
-  # Boot loader (systemd-boot for UEFI)
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  # User config (override what's being imported)
-  users.users.ppb1701 = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
-    group = "ppb1701";
+let
+  # Explicitly add modules directory to Nix store
+  modulesDir = builtins.path {
+    path = /etc/nixos/modules;
+    name = "nixos-modules";
   };
 
-  users.groups.ppb1701 = {};
+  # Explicitly add private directory to Nix store
+  privateDir = builtins.path {
+    path = /etc/nixos/private;
+    name = "nixos-private";
+  };
+in
+{
+  imports = [
+    ./hardware-configuration.nix
+    "${modulesDir}/networking.nix"
+    "${modulesDir}/services.nix"
+    "${modulesDir}/monitoring.nix"
+    "${modulesDir}/system.nix"
+    "${modulesDir}/boot-uefi.nix"
+    "${modulesDir}/backups.nix"
+    <home-manager/nixos>
+  ];
 
-  system.stateVersion = "24.11";
+  # ═══════════════════════════════════════════════════════════════════════════
+  # HOME MANAGER CONFIGURATION
+  # ═══════════════════════════════════════════════════════════════════════════
+  home-manager.users.ppb1701 = import ./home/ppb1701.nix;
+  home-manager.backupFileExtension = "backup";
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SYSTEM VERSION
+  # ═══════════════════════════════════════════════════════════════════════════
+  system.stateVersion = "25.05";
 }
