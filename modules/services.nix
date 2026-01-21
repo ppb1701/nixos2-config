@@ -64,7 +64,7 @@ in
     overrideDevices = true;
     overrideFolders = true;
 
-    settings = import /etc/nixos/private/syncthing-secrets.nix;
+    settings = import /etc/nixos/private/syncthing-devices.nix;
   };
 
   # ═══════════════════════════════════════════════════════════════════════════
