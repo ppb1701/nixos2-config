@@ -129,17 +129,8 @@
     "d /mnt/nextcloud-data/data 0755 ppb1701 users -"
     "d /var/local/vaultwarden 0755 vaultwarden vaultwarden -"
     "d /var/local/vaultwarden/backup 0755 vaultwarden vaultwarden -"
- # "d /var/lib/gitea 2775 gitea gitea - -"
-  "d /var/lib/gitea/.stfolder 2775 gitea gitea - -"
-    "Z /var/lib/gitea 2775 gitea gitea - -"  
-    "Z /var/lib/gitea/.ssh 2770 gitea gitea - -"
-    "Z /var/local/backups/restic 2775 root users - -"
-    # ═══════════════════════════════════════════════════════════════════
-      # CREATE .stignore FILE FOR SYNCTHING (Declarative, survives rebuilds)
-      # This tells Syncthing to ignore the .ssh folder permanently
-      # ═══════════════════════════════════════════════════════════════════
-      "f /var/lib/gitea/.stignore 0664 gitea gitea - .ssh\n.ssh/**"
-  ];
+ 
+];
 
   # Mount the drive
   fileSystems."/mnt/nextcloud-data" = {
