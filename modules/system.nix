@@ -129,24 +129,16 @@
     "d /mnt/nextcloud-data/data 0755 ppb1701 users -"
     "d /var/local/vaultwarden 0755 vaultwarden vaultwarden -"
     "d /var/local/vaultwarden/backup 0755 vaultwarden vaultwarden -"
-     # 1. Gitea Main Folder
-     # "2775" = Set GID (2) + Group Read Write/Execute (775)
-     # Ensures new files inherit the 'gitea' group and are group-writable.
-     "d /var/lib/gitea 2775 gitea gitea - -"
-
-     # 2. Syncthing Folder Marker
-     # Creates the hidden folder marker automatically on boot
-     # so Syncthing doesn't complain "folder marker missing" after a reboot.
-     "d /var/lib/gitea/.stfolder 2775 gitea gitea - -"
-
-     # 3. SSH Folder Fix
-     # The .ssh folder is strict by default (700).
-     # We enforce 2770 so the group can traverse and read keys for backup.
-     "d /var/lib/gitea/.ssh 2770 gitea gitea - -"
-
-     # 4. Authorized Keys Fix
-     # Ensure the key file itself is readable by the group (640).
-     "Z /var/lib/gitea/.ssh/authorized_keys 0640 gitea gitea - -"
+ # "d /var/lib/gitea 2775 gitea gitea - -"
+  "d /var/lib/gitea/.stfolder 2775 gitea gitea - -"
+    "Z /var/lib/gitea 2775 gitea gitea - -"  
+    "Z /var/lib/gitea/.ssh 2770 gitea gitea - -"
+    "Z /var/local/backups/restic 2775 root users - -"
+    # ═══════════════════════════════════════════════════════════════════
+      # CREATE .stignore FILE FOR SYNCTHING (Declarative, survives rebuilds)
+      # This tells Syncthing to ignore the .ssh folder permanently
+      # ═══════════════════════════════════════════════════════════════════
+      "f /var/lib/gitea/.stignore 0664 gitea gitea - .ssh\n.ssh/**"
   ];
 
   # Mount the drive

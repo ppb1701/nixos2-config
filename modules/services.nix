@@ -7,6 +7,17 @@ in
     ./nginx-virtualhosts.nix
   ];
 
+# ═══════════════════════════════════════════════════════════════════
+# SYNCTHING SERVICE ORDERING FIX
+# Forces Syncthing to wait for Gitea and tmpfiles to complete
+# ═══════════════════════════════════════════════════════════════════
+systemd.services."syncthing@ppb1701" = {
+  after = [ "gitea.service" "systemd-tmpfiles-resetup.service" ];
+  wants = [ "systemd-tmpfiles-resetup.service" ];
+  requires = [ "gitea.service" ];
+};
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # NIXOS2-SPECIFIC SERVICE CONFIGURATION
 # Services disabled on this machine: nextcloud, vaultwarden, notediscovery
@@ -55,54 +66,48 @@ in
   };
 
   
-  # ═══════════════════════════════════════════════════════════════════════════
-  # GITEA - GIT HOSTING (PRIMARY INSTANCE)
-  # ═══════════════════════════════════════════════════════════════════════════
+  # ═══════════════════════════════════════════════════════════════════
+  # GITEA SERVICE CONFIGURATION (FIXED)
+  # ═══════════════════════════════════════════════════════════════════
   services.gitea = {
     enable = true;
-    # Optional: Pin a specific version if you want stability
-    # package = pkgs.gitea; 
-  
-    database = {
-      type = "sqlite3";
-      path = "/var/lib/gitea/data/gitea.db";
-    };
-  
+
+    # ═══════════════════════════════════════════════════════════════════
+    # 1. APPLICATION SETTINGS (app.ini) - Goes inside 'settings'
+    # ═══════════════════════════════════════════════════════════════════
     settings = {
       server = {
+        HTTP_PORT = 3000;
         DOMAIN = "git.home";
-        ROOT_URL = "http://git.home";
-        HTTP_PORT = 3300; 
-        HTTP_ADDR = "127.0.0.1"; 
+        ROOT_URL = "http://git.home/";
+        LFS_START_SERVER = true;
       };
-      
-      security = {
-        SECRET_KEY = lib.mkForce secrets.giteaSecret;
-        INTERNAL_TOKEN = lib.mkForce secrets.giteaInternalToken;
+
+      database = {
+        TYPE = "sqlite3";
+        PATH = "/var/lib/gitea/data/gitea.db";
       };
-    
+
+      # ═══════════════════════════════════════════════════════════════════
+      # GITEA SPECIFIC SETTINGS
+      # ═══════════════════════════════════════════════════════════════════
       service = {
         DISABLE_REGISTRATION = true;
         REQUIRE_SIGNIN_VIEW = true;
       };
-    };
-    
-  
-    # Optional: Pre-configure an admin user
-    # lfs = {
-    #   enable = true;
-    # };
-  };
-  
-  # Ensure Gitea user/group exists
-  users.users.gitea = {
-    isSystemUser = true;
-    group = "gitea";
-    home = "/var/lib/gitea";
-    createHome = false; # systemd/tmpfiles handles this
-  };
-  users.groups.gitea = {};
 
+      session = {
+        COOKIE_SECURE = false; # Set to true if using HTTPS/Proxy headers correctly
+      };
+    }; 
+  };
+ 
+   # ═══════════════════════════════════════════════════════════════════
+  # OVERRIDE GITEA UMASK ONLY
+  # ═══════════════════════════════════════════════════════════════════
+  systemd.services.gitea.serviceConfig.UMask = lib.mkForce "0002";
+
+ 
   # ═══════════════════════════════════════════════════════════════════════════
   # LINKWARDEN - BOOKMARK MANAGER
   # ═══════════════════════════════════════════════════════════════════════════
