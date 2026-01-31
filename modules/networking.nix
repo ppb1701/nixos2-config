@@ -9,6 +9,11 @@
   # ═══════════════════════════════════════════════════════════════════════════
   networking.hostName = "nixos2";
 
+  boot.kernel.sysctl = {
+        "net.ipv4.ip_forward" = 1;
+        #"net.ipv6.conf.all.forwarding" = 1;
+      };
+  
   # ═══════════════════════════════════════════════════════════════════════════
   # DNS CONFIGURATION - Control D (Fixed DNS Loop!)
   # ═══════════════════════════════════════════════════════════════════════════
@@ -72,6 +77,7 @@
       2586    # ntfy
       9090    # Prometheus (optional - can access via nginx)
       9205    #Prometheus Nextcloud
+      #8888    #SearX
     ];
 
     allowedUDPPorts = [
@@ -80,9 +86,10 @@
       21027   # Syncthing discovery
     ];
     # Trust Tailscale interface
-    trustedInterfaces = [ "tailscale0" ];
+    trustedInterfaces = [ "tailscale0" "docker0" ];
     
     # Required for Tailscale NAT traversal
     checkReversePath = "loose";
   };
 }
+

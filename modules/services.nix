@@ -1,8 +1,12 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 let
   secrets = import /etc/nixos/private/secrets.nix;
 in
 {
+ imports = [
+    ./nginx-virtualhosts.nix
+  ];
+
 # ═══════════════════════════════════════════════════════════════════════════
 # NIXOS2-SPECIFIC SERVICE CONFIGURATION
 # Services disabled on this machine: nextcloud, vaultwarden, notediscovery
@@ -50,6 +54,115 @@ in
     };
   };
 
+  
+  # ═══════════════════════════════════════════════════════════════════════════
+  # GITEA - GIT HOSTING (PRIMARY INSTANCE)
+  # ═══════════════════════════════════════════════════════════════════════════
+  services.gitea = {
+    enable = true;
+    # Optional: Pin a specific version if you want stability
+    # package = pkgs.gitea; 
+  
+    database = {
+      type = "sqlite3";
+      path = "/var/lib/gitea/data/gitea.db";
+    };
+  
+    settings = {
+      server = {
+        DOMAIN = "git.home";
+        ROOT_URL = "http://git.home";
+        HTTP_PORT = 3300; 
+        HTTP_ADDR = "127.0.0.1"; 
+      };
+      security = {
+        SECRET_KEY = lib.mkForce secrets.giteaSecret;
+        INTERNAL_TOKEN = lib.mkForce secrets.giteaInternalToken;
+      };
+    
+      service = {
+        DISABLE_REGISTRATION = true;
+        REQUIRE_SIGNIN_VIEW = true;
+      };
+    };
+    
+  
+    # Optional: Pre-configure an admin user
+    # lfs = {
+    #   enable = true;
+    # };
+  };
+  
+  # Ensure Gitea user/group exists
+  users.users.gitea = {
+    isSystemUser = true;
+    group = "gitea";
+    home = "/var/lib/gitea";
+    createHome = false; # systemd/tmpfiles handles this
+  };
+  users.groups.gitea = {};
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # LINKWARDEN - BOOKMARK MANAGER
+  # ═══════════════════════════════════════════════════════════════════════════
+  #systemd.services.linkwarden = {
+  #      description = "Linkwarden Bookmark Manager";
+  #      after = [ "network.target" "postgresql.service" ];
+  #      wantedBy = [ "multi-user.target" ];
+
+  #     environment = {
+  #        DATABASE_URL = "postgresql://linkwarden:${secrets.linkwardenDbPassword}@localhost:5432/linkwarden";
+  #        NEXTAUTH_URL = "http://links.home";
+  #        NEXTAUTH_URL_INTERNAL = "http://localhost:8230";
+  #        NEXTAUTH_SECRET = secrets.linkwardenNextAuthSecret;
+  #        NEXT_PUBLIC_DISABLE_REGISTRATION = "true";
+  #        STORAGE_FOLDER = "/var/lib/linkwarden/data";
+  #        LINKWARDEN_HOST = "0.0.0.0";
+  #        LINKWARDEN_PORT = "8230";  # Change from PORT to LINKWARDEN_PORT
+  #        NODE_ENV = "production";
+  #      };
+
+  #      serviceConfig = {
+  #        Type = "simple";
+  #        User = "linkwarden";
+  #        Group = "linkwarden";
+  #        WorkingDirectory = "/var/lib/linkwarden";
+  #        ExecStart = "${pkgs.linkwarden}/bin/linkwarden";
+  #        Restart = "on-failure";
+  #        RestartSec = "10s";
+
+          # Security hardening
+  #        NoNewPrivileges = true;
+  #        PrivateTmp = true;
+  #        ProtectSystem = "strict";
+  #        ProtectHome = true;
+  #        ReadWritePaths = [
+  #            "/var/lib/linkwarden"
+  #            "/var/cache/linkwarden"
+  #          ];
+  #      };
+  #    };
+
+      # Create linkwarden user
+  #    users.users.linkwarden = {
+  #      isSystemUser = true;
+  #      group = "linkwarden";
+  #      home = "/var/lib/linkwarden";
+  #      createHome = true;
+  #    };
+
+  #    users.groups.linkwarden = {};
+
+      # PostgreSQL - needed by Linkwarden and potentially other services
+  #    services.postgresql = {
+  #      enable = true;
+  #      ensureDatabases = [ "linkwarden" ];
+  #      ensureUsers = [{
+  #        name = "linkwarden";
+  #        ensureDBOwnership = true;
+  #      }];
+  #    };
+      
   # ═══════════════════════════════════════════════════════════════════════════
   # SYNCTHING - FILE SYNCHRONIZATION
   # ═══════════════════════════════════════════════════════════════════════════
@@ -99,7 +212,39 @@ in
     # Admin token and other secrets
     environmentFile = "/etc/nixos/private/vaultwarden.env";
   };
- 
+
+   # ═══════════════════════════════════════════════════════════════════════════
+    # SearX - Self-Hosted Search
+    # ═══════════════════════════════════════════════════════════════════════════
+    services.searx = {
+      enable = false;
+
+      settings = {
+        general = {
+          instance_name = "ppb1701 Search";
+          contact_url = false;
+        };
+
+        server = {
+          port = 8888;
+          bind_address = "0.0.0.0";
+          secret_key = secrets.searxSecret;
+          #base_url = "http://search.home";
+          image_proxy = true;
+        };
+
+        search = {
+          safe_search = 0;
+          autocomplete = "google";
+          default_lang = "en";
+        };
+
+        ui = {
+          infinite_scroll = true;
+          theme_args.simple_style = "dark";
+                };
+      };
+    };
   
   # ═══════════════════════════════════════════════════════════════════════════
   # NEXTCLOUD - PRIVATE CLOUD
@@ -166,62 +311,6 @@ in
         }
       }
     '';
-
-    virtualHosts = {
-      "ntfy2.home" = {
-        locations."/" = {
-          proxyPass = "http://localhost:2586";
-          proxyWebsockets = true;
-        };
-      };
-
-      "alertmanager2.home" = {
-        locations."/" = {
-          proxyPass = "http://localhost:9093";
-        };
-      };
-
-      "grafana2.home" = {
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:3001";
-          proxyWebsockets = true;
-        };
-      };
-
-      "prometheus2.home" = {
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:9090";
-        };
-      };
-
-      "adguard2.home" = {
-        default = true;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:3000";
-          proxyWebsockets = true;
-        };
-      };
-
-      "syncthing2.home" = {
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:8384";
-          proxyWebsockets = true;
-        };
-      };
-
-      "notes2.home" = {
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:5000";
-          proxyWebsockets = true;
-          extraConfig = ''
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-          '';
-        };
-      };
-    };
   };
 
   # ═══════════════════════════════════════════════════════════════════════════

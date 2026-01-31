@@ -91,6 +91,10 @@
     enable = true;
   };
 
+  virtualisation.podman.enable = true;
+  
+  virtualisation.oci-containers.backend = "podman";
+
 
   # ═══════════════════════════════════════════════════════════════════════════
   # NIX SETTINGS

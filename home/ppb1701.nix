@@ -173,12 +173,14 @@
 ║ CONFIG EDITING:                                            ║
 ║   ec         - Edit configuration.nix                      ║
 ║   eh         - Edit home/ppb1701.nix                       ║
+║   ebu        - Edit modules/backups.nix                    ║
 ║   en         - Edit modules/networking.nix                 ║
 ║   es         - Edit modules/services.nix                   ║
 ║   esy        - Edit modules/system.nix                     ║
 ║   em         - Edit modules/monitoring.nix                 ║
 ║   ebios      - Edit modules/boot-bios.nix                  ║
 ║   euefi      - Edit modules/boot-uefi.nix                  ║
+║   ehost      - Edit modules/nginx-virtualhosts.nix         ║
 ║   ep         - Edit private/ssh-keys.nix                   ║
 ║   escrt      - Edit private/secrets.nix                    ║
 ║   ea         - Edit private/alertmanager.env               ║
@@ -214,12 +216,13 @@
    test = "nh os test -f '<nixpkgs/nixos>' -- -I nixos-config=/etc/nixos/configuration.nix && exec zsh";
    rollback = "sudo nixos-rebuild switch --rollback && exec zsh";
    update = "sudo nixos-rebuild switch --upgrade && exec zsh";
-   cleanup = "nh clean -v all --keep 3";
+   cleanup = "nh clean -v all";
    optimize = "sudo nix-store --optimize";
 
    # Config editing
    ec = "sudo micro /etc/nixos/configuration.nix";
    eh = "sudo micro /etc/nixos/home/ppb1701.nix";
+   ebu = "sudo micro /etc/nixos/modules/backups.nix";
    en = "sudo micro /etc/nixos/modules/networking.nix";
    em = "sudo micro /etc/nixos/modules/monitoring.nix";
    es = "sudo micro /etc/nixos/modules/services.nix";
@@ -230,6 +233,7 @@
    eb = "sudo micro /etc/nixos/configuration-bios.nix";
    ebios = "sudo micro /etc/nixos/modules/boot-bios.nix";
    euefi = "sudo micro /etc/nixos/modules/boot-uefi.nix";
+   ehost = "sudo micro /etc/nixos/modules/nginx-virtualhosts.nix";
    ea ="sudo micro /etc/nixos/private/alertmanager.env";
    eny ="sudo micro /etc/nixos/private/notediscovery-config.yaml";
    enx ="sudo micro /etc/nixos/private/notediscovery-config.nix";
@@ -268,7 +272,7 @@
    q = "exit";
  };
 
-  
+
 
     initContent = ''
       # Starship prompt initialization
