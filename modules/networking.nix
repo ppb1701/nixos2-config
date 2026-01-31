@@ -13,7 +13,10 @@
         "net.ipv4.ip_forward" = 1;
         #"net.ipv6.conf.all.forwarding" = 1;
       };
-  
+  networking.extraHosts = ''
+  127.0.0.1 git.home
+'';
+
   # ═══════════════════════════════════════════════════════════════════════════
   # DNS CONFIGURATION - Control D (Fixed DNS Loop!)
   # ═══════════════════════════════════════════════════════════════════════════

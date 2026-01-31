@@ -75,6 +75,7 @@ in
         HTTP_PORT = 3300; 
         HTTP_ADDR = "127.0.0.1"; 
       };
+      
       security = {
         SECRET_KEY = lib.mkForce secrets.giteaSecret;
         INTERNAL_TOKEN = lib.mkForce secrets.giteaInternalToken;
