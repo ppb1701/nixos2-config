@@ -110,63 +110,64 @@ in
   # ═══════════════════════════════════════════════════════════════════════════
   # LINKWARDEN - BOOKMARK MANAGER
   # ═══════════════════════════════════════════════════════════════════════════
-  #systemd.services.linkwarden = {
-  #      description = "Linkwarden Bookmark Manager";
-  #      after = [ "network.target" "postgresql.service" ];
-  #      wantedBy = [ "multi-user.target" ];
+  systemd.services.linkwarden = {
+        enable = false;
+        description = "Linkwarden Bookmark Manager";
+        after = [ "network.target" "postgresql.service" ];
+        wantedBy = [ "multi-user.target" ];
 
-  #     environment = {
-  #        DATABASE_URL = "postgresql://linkwarden:${secrets.linkwardenDbPassword}@localhost:5432/linkwarden";
-  #        NEXTAUTH_URL = "http://links.home";
-  #        NEXTAUTH_URL_INTERNAL = "http://localhost:8230";
-  #        NEXTAUTH_SECRET = secrets.linkwardenNextAuthSecret;
-  #        NEXT_PUBLIC_DISABLE_REGISTRATION = "true";
-  #        STORAGE_FOLDER = "/var/lib/linkwarden/data";
-  #        LINKWARDEN_HOST = "0.0.0.0";
-  #        LINKWARDEN_PORT = "8230";  # Change from PORT to LINKWARDEN_PORT
-  #        NODE_ENV = "production";
-  #      };
+       environment = {
+          DATABASE_URL = "postgresql://linkwarden:${secrets.linkwardenDbPassword}@localhost:5432/linkwarden";
+          NEXTAUTH_URL = "http://links.home";
+          NEXTAUTH_URL_INTERNAL = "http://localhost:8230";
+          NEXTAUTH_SECRET = secrets.linkwardenNextAuthSecret;
+          NEXT_PUBLIC_DISABLE_REGISTRATION = "true";
+          STORAGE_FOLDER = "/var/lib/linkwarden/data";
+          LINKWARDEN_HOST = "0.0.0.0";
+          LINKWARDEN_PORT = "8230";  # Change from PORT to LINKWARDEN_PORT
+          NODE_ENV = "production";
+        };
 
-  #      serviceConfig = {
-  #        Type = "simple";
-  #        User = "linkwarden";
-  #        Group = "linkwarden";
-  #        WorkingDirectory = "/var/lib/linkwarden";
-  #        ExecStart = "${pkgs.linkwarden}/bin/linkwarden";
-  #        Restart = "on-failure";
-  #        RestartSec = "10s";
+        serviceConfig = {
+          Type = "simple";
+          User = "linkwarden";
+          Group = "linkwarden";
+          WorkingDirectory = "/var/lib/linkwarden";
+          ExecStart = "${pkgs.linkwarden}/bin/linkwarden";
+          Restart = "on-failure";
+         RestartSec = "10s";
 
-          # Security hardening
-  #        NoNewPrivileges = true;
-  #        PrivateTmp = true;
-  #        ProtectSystem = "strict";
-  #        ProtectHome = true;
-  #        ReadWritePaths = [
-  #            "/var/lib/linkwarden"
-  #            "/var/cache/linkwarden"
-  #          ];
-  #      };
-  #    };
+         # Security hardening
+          NoNewPrivileges = true;
+          PrivateTmp = true;
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          ReadWritePaths = [
+              "/var/lib/linkwarden"
+              "/var/cache/linkwarden"
+            ];
+        };
+      };
 
       # Create linkwarden user
-  #    users.users.linkwarden = {
-  #      isSystemUser = true;
-  #      group = "linkwarden";
-  #      home = "/var/lib/linkwarden";
-  #      createHome = true;
-  #    };
+      users.users.linkwarden = {
+        isSystemUser = true;
+        group = "linkwarden";
+        home = "/var/lib/linkwarden";
+        createHome = true;
+      };
 
-  #    users.groups.linkwarden = {};
+      users.groups.linkwarden = {};
 
       # PostgreSQL - needed by Linkwarden and potentially other services
-  #    services.postgresql = {
-  #      enable = true;
-  #      ensureDatabases = [ "linkwarden" ];
-  #      ensureUsers = [{
-  #        name = "linkwarden";
-  #        ensureDBOwnership = true;
-  #      }];
-  #    };
+      services.postgresql = {
+        enable = false;
+        ensureDatabases = [ "linkwarden" ];
+        ensureUsers = [{
+          name = "linkwarden";
+          ensureDBOwnership = true;
+        }];
+      };
       
   # ═══════════════════════════════════════════════════════════════════════════
   # SYNCTHING - FILE SYNCHRONIZATION
@@ -176,7 +177,8 @@ in
     user = "ppb1701";
     dataDir = "/home/ppb1701";
     configDir = "/home/ppb1701/.config/syncthing";
-
+    group = "syncthing";
+    
     guiAddress = "0.0.0.0:8384";
 
     overrideDevices = true;
@@ -334,86 +336,75 @@ in
     };
   };
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # NOTEDISCOVERY - WEB-BASED KNOWLEDGE BASE
-  # ═══════════════════════════════════════════════════════════════════════════
+   # Main NoteDiscovery service
+  systemd.services.notediscovery = {
+    enable = false;
+    description = "NoteDiscovery Knowledge Base";
+    after = [ "network.target" "syncthing.service" "notediscovery-setup.service" ];
+    requires = [ "notediscovery-setup.service" ];
+    wantedBy = [ "multi-user.target" ];
 
-  # One-time setup service - clones repo and installs dependencies
-#  systemd.services.notediscovery-setup = {
-#    description = "NoteDiscovery One-Time Setup";
-#    wantedBy = [ "multi-user.target" ];
-#    after = [ "network-online.target" ];
-#    wants = [ "network-online.target" ];
-
-#    serviceConfig = {
-#      Type = "oneshot";
-#      RemainAfterExit = true;
-#      User = "notediscovery";
-#      Group = "notediscovery";
-#    };
-
-#    path = with pkgs; [ git python3 ];
-
-#    script = ''
-#      if [ ! -d /var/lib/notediscovery/.git ]; then
-#        echo "Cloning NoteDiscovery..."
-#        ${pkgs.git}/bin/git clone https://github.com/gamosoft/NoteDiscovery.git /var/lib/notediscovery
-#      fi
-
-#      if [ ! -d /var/lib/notediscovery/venv ]; then
-#        echo "Creating Python virtual environment..."
-#        ${pkgs.python3}/bin/python3 -m venv /var/lib/notediscovery/venv
-#        /var/lib/notediscovery/venv/bin/pip install -r /var/lib/notediscovery/requirements.txt
-#      fi
-#    '';
-#  };
-
-  # Main NoteDiscovery service
-#  systemd.services.notediscovery = {
-#    description = "NoteDiscovery Knowledge Base";
-#    after = [ "network.target" "syncthing.service" "notediscovery-setup.service" ];
-#    requires = [ "notediscovery-setup.service" ];
-#    wantedBy = [ "multi-user.target" ];
-
-#    serviceConfig = {
-#      Type = "simple";
-#      User = "notediscovery";
-#      Group = "notediscovery";
-#      WorkingDirectory = "/var/lib/notediscovery";
-#      ExecStart = "/var/lib/notediscovery/venv/bin/python3 /var/lib/notediscovery/run.py";
-#      Restart = "on-failure";
-#      RestartSec = "10s";
+    serviceConfig = {
+      Type = "simple";
+      User = "notediscovery";
+      Group = "notediscovery";
+      WorkingDirectory = "/var/lib/notediscovery";
+      ExecStart = "/var/lib/notediscovery/venv/bin/python3 /var/lib/notediscovery/run.py";
+      Restart = "on-failure";
+      RestartSec = "10s";
 
       # Security hardening
-#      NoNewPrivileges = true;
-#      PrivateTmp = true;
-#      ProtectSystem = "strict";
-#      ProtectHome = true;
-#      ReadWritePaths = [
-#        "/var/lib/notediscovery"
-#        (import /etc/nixos/private/notediscovery-config.nix).notesPath
-#      ];
-#    };
+      NoNewPrivileges = true;
+      PrivateTmp = true;
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      ReadWritePaths = [
+        "/var/lib/notediscovery"
+        (import /etc/nixos/private/notediscovery-config.nix).notesPath
+      ];
+    };
 
-#    environment = {
-#      PYTHONUNBUFFERED = "1";
-#      CONFIG_PATH = "/etc/nixos/private/notediscovery-config.yaml";
-#      PORT = "5000";
-#    };
-#  };
+    environment = {
+      PYTHONUNBUFFERED = "1";
+      CONFIG_PATH = "/etc/nixos/private/notediscovery-config.yaml";
+      PORT = "5000";
+    };
+  };
 
   # Create the notediscovery user and set proper directory permissions
-#  users.users.notediscovery = {
-#    isSystemUser = true;
-#    group = "notediscovery";
-#    home = "/var/lib/notediscovery";
-#    createHome = true;
-#  };
+  users.users.notediscovery = {
+    isSystemUser = true;
+    group = "notediscovery";
+    extraGroups = [ "syncthing" "users" ];
+    home = "/var/lib/notediscovery";
+    createHome = true;
+  };
 
-#  users.groups.notediscovery = {};
+  users.groups.notediscovery = {};
 
   # Ensure proper permissions on the directory
-#  systemd.tmpfiles.rules = [
-#    "d /var/lib/notediscovery 0755 notediscovery notediscovery -"
-#  ];
+  systemd.tmpfiles.rules = [
+    "d /var/lib/notediscovery 0755 notediscovery notediscovery -"
+  ];
+
+  # Fix Blog subdirectories after NoteDiscovery starts
+  systemd.services.fix-blog-permissions = {
+    enable = false;
+    description = "Fix Blog directory permissions for Syncthing";
+    after = [ "notediscovery.service" ];
+    wantedBy = [ "multi-user.target" ];
+  
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+  
+    script = ''
+      # Recursively fix ownership and permissions
+      ${pkgs.coreutils}/bin/chown -R ppb1701:syncthing /var/lib/obsidian/ppb/Blog
+      ${pkgs.coreutils}/bin/chmod -R u+rwX,g+rwX /var/lib/obsidian/ppb/Blog
+      ${pkgs.findutils}/bin/find /var/lib/obsidian/ppb/Blog -type d -exec chmod g+s {} \;
+    '';
+  };
+  
 }
