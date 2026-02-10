@@ -10,9 +10,12 @@ in
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# NIXOS2-SPECIFIC SERVICE CONFIGURATION
-# Services disabled on this machine: nextcloud, vaultwarden, notediscovery
-# Can be quickly enabled if needed for failover
+# NIXOS2-SPECIFIC SERVICE CONFIGURATION - SECONDARY/BACKUP SERVER
+# ═══════════════════════════════════════════════════════════════════════════
+# ENABLED: AdGuard Home, Gitea (PRIMARY), Syncthing, Tailscale, Nginx
+# DISABLED (failover-ready): Nextcloud, Vaultwarden, SearX, Linkwarden,
+#                            NoteDiscovery, ntfy-sh, PostgreSQL
+# To enable for failover: change enable = false to enable = true
 # ═══════════════════════════════════════════════════════════════════════════
 
   # ═══════════════════════════════════════════════════════════════════════════
