@@ -35,6 +35,10 @@ This configuration uses a **temporary, publicly-known password** for initial con
 - **AdGuard Home:** Network-wide ad blocking and DNS filtering
   - Backup DNS server for the network
   - Web UI at http://adguard2.home or port 3000
+- **Homepage Dashboard:** Centralized service dashboard
+  - Auto-discovers enabled services via NixOS module system
+  - Real-time CPU, memory, and disk usage widgets
+  - Web UI at http://home2.home or port 8582
 - **Gitea:** Self-hosted Git server (PRIMARY INSTANCE)
   - This is the main Git server, mirrors to GitHub
   - Web UI at http://git.home or port 3300
@@ -161,6 +165,7 @@ nixos2-config/
 ├── install-nixos.sh               # Automated installation script
 ├── modules/
 │   ├── services.nix              # Service configurations (Gitea enabled, others failover-ready)
+│   ├── homepage.nix              # Homepage Dashboard (service landing page with system monitoring)
 │   ├── nginx-virtualhosts.nix    # Nginx reverse proxy configuration
 │   ├── monitoring.nix            # Prometheus, Grafana, etc.
 │   ├── backups.nix               # Restic backup configuration

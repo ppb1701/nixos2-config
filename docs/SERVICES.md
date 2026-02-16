@@ -73,6 +73,29 @@ File synchronization for data replication.
 - Provide backup copies for disaster recovery
 - Sync Gitea repositories if configured
 
+### Homepage Dashboard (Port 8582)
+
+Centralized service dashboard with real-time system resource monitoring.
+
+**Status:** ENABLED
+
+**Access:**
+- Via Nginx: http://home2.home
+- Direct: http://YOUR_IP:8582
+
+**Features:**
+- Auto-discovers enabled services using NixOS module system
+- Real-time CPU, memory, and disk usage widgets
+- Dark theme with organized categories (Network, Services, Monitoring)
+- Only shows tiles for services that are enabled
+
+**Configuration:** `modules/homepage.nix`
+
+**DNS Setup:** Add DNS rewrite in AdGuard Home:
+```
+home2.home → YOUR_SECONDARY_SERVER_IP
+```
+
 ### Tailscale
 
 VPN mesh network for remote access.
