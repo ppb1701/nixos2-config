@@ -5,6 +5,7 @@ in
 {
  imports = [
     ./nginx-virtualhosts.nix
+    ./homepage.nix
   ];
 
 
@@ -107,8 +108,14 @@ in
   };
   users.groups.gitea = {};
  
-
-
+  # ═══════════════════════════════════════════════════════════════════════════
+  # HomePage Dashboard
+  # ═══════════════════════════════════════════════════════════════════════════
+  services.homepage-dashboard = {
+    enable = true;
+    listenPort = 8582;
+    allowedHosts = "home2.home";
+  };
  
   # ═══════════════════════════════════════════════════════════════════════════
   # LINKWARDEN - BOOKMARK MANAGER

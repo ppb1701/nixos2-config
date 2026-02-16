@@ -127,6 +127,22 @@
         };
       };
 
+       "home.home" = {
+      # listen = [{ addr = secrets.tailscaleIP; port = 80; }];
+        locations."/" = {
+                proxyPass = "http://127.0.0.1:8582";
+                proxyWebsockets = true;
+        };
+      };
+
+       "home2.home" = {
+      # listen = [{ addr = secrets.tailscaleIP; port = 80; }];
+        locations."/" = {
+                proxyPass = "http://127.0.0.1:8582";
+                proxyWebsockets = true;
+        };
+      };
+
       "syncthing2.home" = {
         locations."/" = {
           proxyPass = "http://127.0.0.1:8384";
