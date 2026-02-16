@@ -102,7 +102,7 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # SSH SERVER - BULLETPROOF CONFIGURATION
+  # SSH SERVER - RESILIENT CONFIGURATION
   # ═══════════════════════════════════════════════════════════════════════════
  # SSH Configuration - PRODUCTION HARDENED
   services.openssh = {

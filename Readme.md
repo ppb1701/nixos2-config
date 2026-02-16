@@ -241,7 +241,7 @@ sudo nix-store --optimize
 ## Related Repositories
 
 - **Primary Server:** [nixos-config](https://github.com/ppb1701/nixos-config) - Main production server
-- **Blog:** https://blog.ppb1701.com/nixos-adguard-series
+- **Blog:** https://blog.ppb1701.com/building-a-resilient-home-server-series
 
 ## License
 
