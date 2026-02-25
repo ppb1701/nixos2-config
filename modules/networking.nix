@@ -13,6 +13,10 @@
         "net.ipv4.ip_forward" = 1;
         #"net.ipv6.conf.all.forwarding" = 1;
       };
+  networking.hosts = {
+    "127.0.0.1" = [ "collabora.home" ];
+  };
+
   networking.extraHosts = ''
   127.0.0.1 git.home
 '';

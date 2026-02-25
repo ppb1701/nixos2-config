@@ -163,12 +163,14 @@
 ║                    NIXOS CUSTOM ALIASES                    ║
 ╠════════════════════════════════════════════════════════════╣
 ║ SYSTEM MANAGEMENT:                                         ║
-║   rebuild    - Rebuild and switch to new config            ║
-║   test       - Test new config without switching           ║
-║   rollback   - Rollback to previous generation             ║
-║   update     - Update system and rebuild                   ║
-║   cleanup    - Clean old generations                       ║
-║   optimize    - Deduplicate store                          ║
+║   rebuild       - Rebuild and switch to new config         ║
+║   rebuild-safe  - Rebuild, reboot if it hangs              ║
+║   rebuild-boot  - Rebuild, activate on next boot           ║
+║   test          - Test new config without switching        ║
+║   rollback      - Rollback to previous generation          ║
+║   update        - Update system and rebuild                ║
+║   cleanup       - Clean old generations                    ║
+║   optimize      - Deduplicate store                        ║
 ╠════════════════════════════════════════════════════════════╣
 ║ CONFIG EDITING:                                            ║
 ║   ec         - Edit configuration.nix                      ║
@@ -195,9 +197,13 @@
 ║   gs         - Git status                                  ║
 ╠════════════════════════════════════════════════════════════╣
 ║ SERVICE MANAGEMENT:                                        ║
-║   ags/agr/agl - AdGuard status/restart/logs                ║
-║   sts/str/stl - Syncthing status/restart/logs              ║
-║   sss/ssr     - SSH status/restart                         ║
+║   ags/agr/agl  - AdGuard status/restart/logs               ║
+║   sts/str/stl  - Syncthing status/restart/logs             ║
+║   sss/ssr      - SSH status/restart                        ║
+║   ncs/ncr/ncl  - Nextcloud status/restart/logs             ║
+║   rds/rdr/rdl  - Redis status/restart/logs                 ║
+║   cos/cor/col  - Collabora status/restart/logs             ║
+║   ncocc        - Run nextcloud-occ command                 ║
 ╠════════════════════════════════════════════════════════════╣
 ║ SYSTEM INFO:                                               ║
 ║   sysinfo    - System information (neofetch)               ║
@@ -214,6 +220,7 @@
    # System management (with auto-reload!)
    rebuild = "nh os switch -f '<nixpkgs/nixos>' -- -I nixos-config=/etc/nixos/configuration.nix && exec zsh";
    rebuild-boot = "nh os boot -f '<nixpkgs/nixos>' -- -I nixos-config=/etc/nixos/configuration.nix && exec zsh";
+   rebuild-safe = "nh os switch -f '<nixpkgs/nixos>' -- -I nixos-config=/etc/nixos/configuration.nix && exec zsh || sudo reboot -f";
    test = "nh os test -f '<nixpkgs/nixos>' -- -I nixos-config=/etc/nixos/configuration.nix && exec zsh";
    rollback = "sudo nixos-rebuild switch --rollback && exec zsh";
    update = "sudo nixos-rebuild switch --upgrade && exec zsh";
@@ -255,6 +262,16 @@
    stl = "sudo journalctl -u syncthing@ppb1701 -f";
    sss = "sudo systemctl status sshd";
    ssr = "sudo systemctl restart sshd";
+   ncs = "sudo systemctl status phpfpm-nextcloud";
+   ncr = "sudo systemctl restart phpfpm-nextcloud";
+   ncl = "sudo journalctl -u phpfpm-nextcloud -f";
+   ncocc = "sudo nextcloud-occ";
+   rds = "sudo systemctl status redis-nextcloud";
+   rdr = "sudo systemctl restart redis-nextcloud";
+   rdl = "sudo journalctl -u redis-nextcloud -f";
+   cos = "sudo systemctl status coolwsd";
+   cor = "sudo systemctl restart coolwsd";
+   col = "sudo journalctl -u coolwsd -f";
 
    # System info
    sysinfo = "neofetch";

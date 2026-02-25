@@ -54,6 +54,7 @@ This configuration uses a **temporary, publicly-known password** for initial con
 These services are fully configured but disabled. Enable for failover if the primary server fails:
 
 - **Nextcloud:** Private cloud storage (runs on primary)
+- **Collabora Online:** Document editing for Nextcloud (runs on primary, requires unstable channel)
 - **Vaultwarden:** Password manager (runs on primary)
 - **SearX:** Self-hosted search (runs on primary)
 - **Linkwarden:** Bookmark manager (runs on primary)
@@ -140,6 +141,7 @@ services.gitea = {
 {
   giteaSecret = "your-gitea-secret-key";
   giteaInternalToken = "your-gitea-internal-token";
+  grafanaSecretKey = "your-grafana-secret-key";  # openssl rand -hex 32
 }
 ```
 
@@ -225,14 +227,19 @@ nixos2-config/
 ### Shell Aliases
 
 ```bash
-rebuild   # Rebuild and switch configuration
-cleanup   # Clean old generations and optimize store
-diskspace # Check disk usage
+rebuild       # Rebuild and switch configuration
+rebuild-safe  # Rebuild, auto-reboot if activation hangs
+cleanup       # Clean old generations and optimize store
+diskspace     # Check disk usage
 
 # Service management
 ags/agr/agl  # AdGuard status/restart/logs
 sts/str/stl  # Syncthing status/restart/logs
 gts/gtr/gtl  # Gitea status/restart/logs
+ncs/ncr/ncl  # Nextcloud status/restart/logs
+rds/rdr/rdl  # Redis status/restart/logs
+cos/cor/col  # Collabora (coolwsd) status/restart/logs
+ncocc        # Run nextcloud-occ command
 ```
 
 ### Cleaning Up Old Generations

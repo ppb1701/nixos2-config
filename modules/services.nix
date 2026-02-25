@@ -14,8 +14,8 @@ in
 # NIXOS2-SPECIFIC SERVICE CONFIGURATION - SECONDARY/BACKUP SERVER
 # ═══════════════════════════════════════════════════════════════════════════
 # ENABLED: AdGuard Home, Gitea (PRIMARY), Syncthing, Tailscale, Nginx
-# DISABLED (failover-ready): Nextcloud, Vaultwarden, SearX, Linkwarden,
-#                            NoteDiscovery, ntfy-sh, PostgreSQL
+# DISABLED (failover-ready): Nextcloud, Collabora Online, Vaultwarden, SearX,
+#                            Linkwarden, NoteDiscovery, ntfy-sh, PostgreSQL
 # To enable for failover: change enable = false to enable = true
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -306,6 +306,25 @@ in
     { addr = "0.0.0.0"; port = 8280; }
     { addr = "[::]"; port = 8280; }
   ];
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # COLLABORA ONLINE - DOCUMENT EDITING ENGINE FOR NEXTCLOUD
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Requires nixos-unstable channel. Disabled on standby - enable with Nextcloud.
+  services.collabora-online = {
+    enable = false;
+    port = 9980;
+    settings = {
+      ssl."@enable" = false;
+      ssl."@termination" = false;
+      ssl.enable = false;
+      ssl.termination = false;
+      server_name = "collabora.home";
+      storage.wopi."@allow" = true;
+      storage.wopi.alias_groups."@mode" = "groups";
+      storage.wopi.host = [ "cloud\\.home" "127\\.0\\.0\\.1" ];
+    };
+  };
 
   # ═══════════════════════════════════════════════════════════════════════════
   # NGINX - REVERSE PROXY FOR CLEAN LOCAL URLS

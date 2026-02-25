@@ -175,6 +175,36 @@ services.searx.enable = true;
 # 4. Rebuild
 ```
 
+### Collabora Online
+
+**Status:** DISABLED (runs on primary with Nextcloud)
+
+Collabora provides LibreOffice-based document editing within Nextcloud. It requires nixos-unstable channel.
+
+**To enable for failover (enable together with Nextcloud):**
+```bash
+# 1. Edit services.nix
+sudo micro /etc/nixos/modules/services.nix
+
+# 2. Change:
+services.collabora-online.enable = true;
+
+# 3. Ensure Nextcloud is also enabled and running
+
+# 4. Rebuild
+sudo nixos-rebuild switch
+
+# 5. Configure in Nextcloud admin:
+#    Settings → Office → Use your own server → http://collabora.home
+#    Allow list for WOPI requests → 127.0.0.1
+
+# 6. Add DNS rewrite: collabora.home → YOUR_IP
+```
+
+**Note:** The systemd service name is `coolwsd`, not `collabora-online`. Use aliases: `cos` (status), `cor` (restart), `col` (logs).
+
+See `docs/TROUBLESHOOTING.md` for Collabora-specific troubleshooting (SSL config quirks, WOPI errors, etc.)
+
 ### NoteDiscovery
 
 **Status:** DISABLED (runs on primary)
