@@ -51,7 +51,7 @@ in
             {
               "AdGuard Home" = {
                 description = "Network-wide ad blocking";
-                href = "http://adguard.home";
+                href = "http://adguard2.home";
                 icon = "adguard-home";
                 ping = "http://127.0.0.1:3000";
               };
@@ -75,7 +75,7 @@ in
             {
               "Syncthing" = {
                 description = "File sync";
-                href = "http://syncthing.home";
+                href = "http://syncthing2.home";
                 icon = "syncthing";
                 ping = "http://127.0.0.1:8384";
               };
