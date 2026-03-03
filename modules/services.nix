@@ -326,6 +326,39 @@ in
     };
   };
 
+  
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Samba
+  # ═══════════════════════════════════════════════════════════════════════════
+  services.samba = {
+    enable = true;
+    securityType = "user";
+    settings = {
+      global = {
+        "workgroup" = "WORKGROUP";
+        "server string" = "nixos2";
+        "server role" = "standalone server";
+        "fruit:metadata" = "stream";
+        "fruit:model" = "MacSamba";
+        "fruit:posix_rename" = "yes";
+        "fruit:veto_appledouble" = "no";
+        "fruit:wipe_intentionally_left_blank_rfork" = "yes";
+        "fruit:delete_empty_adfiles" = "yes";
+      };
+      timemachine = {
+        "path" = "/mnt/nextcloud-data/timemachine";
+        "browseable" = "yes";
+        "writable" = "yes";
+        "valid users" = "tmuser";
+        "vfs objects" = "catia fruit streams_xattr";
+        "fruit:time machine" = "yes";
+        "fruit:time machine max size" = "1500G";
+      };
+    };
+  };
+  
+  services.samba-wsdd.enable = true;
+
   # ═══════════════════════════════════════════════════════════════════════════
   # NGINX - REVERSE PROXY FOR CLEAN LOCAL URLS
   # ═══════════════════════════════════════════════════════════════════════════

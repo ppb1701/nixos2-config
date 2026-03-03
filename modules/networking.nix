@@ -85,12 +85,17 @@
       9090    # Prometheus (optional - can access via nginx)
       9205    #Prometheus Nextcloud
       #8888    #SearX
+      139   # Samba
+      445   # Samba
     ];
 
     allowedUDPPorts = [
       53      # DNS (UDP) - CRITICAL for AdGuard Home!
       22000   # Syncthing discovery
       21027   # Syncthing discovery
+      137   # Samba
+      138   # Samba
+      5353  # Samba WSDD/mDNS discovery
     ];
     # Trust Tailscale interface
     trustedInterfaces = [ "tailscale0" "docker0" ];

@@ -62,6 +62,13 @@
     ];
   };
 
+  users.users.tmuser = {
+    isSystemUser = true;
+    group = "tmuser";
+    extraGroups = [ "syncthing" ];
+  };
+  users.groups.tmuser = {};
+
   # ═══════════════════════════════════════════════════════════════════════════
   # SYSTEM PACKAGES
   # ═══════════════════════════════════════════════════════════════════════════
@@ -149,8 +156,12 @@
     "d /var/local/vaultwarden 0755 vaultwarden vaultwarden -"
     "d /var/local/vaultwarden/backup 0755 vaultwarden vaultwarden -"
     "d /var/local/backups2 0755 ppb1701 syncthing -"
+    "d /var/local/clientbackups 0755 ppb1701 syncthing -"
     "d /var/cache/linkwarden 0755 linkwarden linkwarden -"
     "d /var/cache/linkwarden/cache 0755 linkwarden linkwarden -"
+
+    #timemachine mapping
+    "d /mnt/nextcloud-data/timemachine 2775 tmuser syncthing - -"
   ];
 
     # 1. Gitea Main Folder
@@ -188,6 +199,7 @@
           "/var/lib/obsidian"
           "/var/local/backups"
           "/var/local/backups2"
+          "/var/local/clientbackups"
           "/mnt/nextcloud-data"
         ];
       };
