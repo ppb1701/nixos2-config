@@ -108,6 +108,37 @@ Reverse proxy for clean URLs.
 
 **Status:** ENABLED
 
+### Samba + Time Machine (Ports 139, 445)
+
+macOS Time Machine target over SMB. Configured in `modules/timemachine.nix` (imported by `configuration.nix`) with the active share settings also present in `modules/services.nix`.
+
+**Status:** ENABLED
+
+The Time Machine share is at `/mnt/nextcloud-data/timemachine` on the 6TB SSD. The quota is capped at `1500G`, leaving room for Nextcloud data and other storage on the drive.
+
+**Share access from macOS:**
+- System Settings → General → Time Machine → Add Backup Disk
+- The server appears automatically in the list via samba-wsdd (WS-Discovery)
+- Or connect manually: **Finder → Go → Connect to Server → `smb://nixos2.local`**
+- Authenticate with `tmuser` and the Samba password set via `sudo smbpasswd -a tmuser`
+
+**Firewall ports (already open in `modules/networking.nix`):**
+- TCP: 139, 445 (Samba)
+- UDP: 137, 138, 5353 (NetBIOS + WSDD/mDNS)
+
+**Service management:**
+```bash
+systemctl status samba        # Samba daemon
+systemctl status samba-wsdd   # WS-Discovery (Finder auto-discovery)
+journalctl -u samba -f        # Samba logs
+```
+
+**User management:**
+```bash
+# Set or change tmuser Samba password (survives rebuilds)
+sudo smbpasswd -a tmuser
+```
+
 ## Disabled Services (Failover-Ready)
 
 These services are fully configured but disabled. They run on the primary server.
