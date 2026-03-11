@@ -108,6 +108,12 @@
   # ═══════════════════════════════════════════════════════════════════════════
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  nix.nixPath = [
+    "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos"
+    "home-manager=https://github.com/nix-community/home-manager/archive/master.tar.gz"
+    "/nix/var/nix/profiles/per-user/root/channels"
+  ];
+
   # ═══════════════════════════════════════════════════════════════════════════
   # SSH SERVER - RESILIENT CONFIGURATION
   # ═══════════════════════════════════════════════════════════════════════════
@@ -162,6 +168,7 @@
 
     #timemachine mapping
     "d /mnt/nextcloud-data/timemachine 2775 tmuser syncthing - -"
+    "d /mnt/nextcloud-data/isos 2775 ppb1701 syncthing - -"
   ];
 
     # 1. Gitea Main Folder

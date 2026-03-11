@@ -3,7 +3,6 @@
 let
   secrets = import /etc/nixos/private/secrets.nix;
   
-  # Build rule groups conditionally
   systemAlertsRules = ''
     - alert: ServiceDown
       expr: up == 0
@@ -40,6 +39,24 @@ let
       annotations:
         summary: "Critical disk space on root filesystem"
         description: "Root filesystem has less than 10 percent space remaining."
+
+    - alert: SSDSpaceWarning
+      expr: (node_filesystem_avail_bytes{mountpoint="/mnt/nextcloud-data"} / node_filesystem_size_bytes{mountpoint="/mnt/nextcloud-data"}) * 100 < 20
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Low space on SSD (nextcloud-data)"
+        description: "SSD at /mnt/nextcloud-data has less than 20% free — VM images and ISOs may be at risk."
+
+    - alert: SSDSpaceCritical
+      expr: (node_filesystem_avail_bytes{mountpoint="/mnt/nextcloud-data"} / node_filesystem_size_bytes{mountpoint="/mnt/nextcloud-data"}) * 100 < 10
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Critical space on SSD (nextcloud-data)"
+        description: "SSD at /mnt/nextcloud-data has less than 10% free."
 
     - alert: HighCPUUsage
       expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
@@ -155,7 +172,6 @@ in
     };
 
     scrapeConfigs =
-      # Core monitoring (always on)
       [
         {
           job_name = "node";
@@ -170,21 +186,18 @@ in
           }];
         }
       ]
-      # Optional: SearxNG
       ++ lib.optionals (config.services.searx.enable or false) [{
         job_name = "searx";
         static_configs = [{
           targets = [ "localhost:8888" ];
         }];
       }]
-      # Optional: Nginx
       ++ lib.optionals config.services.nginx.enable [{
         job_name = "nginx";
         static_configs = [{
           targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.nginx.port}" ];
         }];
       }]
-      # Optional: Nextcloud
       ++ lib.optionals config.services.nextcloud.enable [
         {
           job_name = "nextcloud";
@@ -216,7 +229,6 @@ in
           ];
         }
       ]
-      # Optional: Syncthing
       ++ lib.optionals config.services.syncthing.enable [{
         job_name = "syncthing";
         metrics_path = "/metrics";
@@ -225,7 +237,6 @@ in
         }];
         basic_auth = (import /etc/nixos/private/syncthing-secrets.nix).prometheus_auth;
       }]
-      # Blackbox probes - conditionally add targets
       ++ [{
         job_name = "blackbox";
         metrics_path = "/probe";
@@ -234,7 +245,7 @@ in
         };
         static_configs = [{
           targets = lib.flatten [
-            (lib.optional (config.services.syncthing.enable) "http://127.0.0.1:8384")
+            (lib.optional config.services.syncthing.enable "http://127.0.0.1:8384")
             (lib.optional (config.services.adguardhome.enable or false) "http://127.0.0.1:3000")
             (lib.optional (config.services.vaultwarden.enable or false) "https://${secrets.tailscaleHostname}")
           ];
@@ -255,7 +266,6 @@ in
         ];
       }];
 
-    # Alert Rules
     rules = [
       ''
         groups:
@@ -377,9 +387,7 @@ in
         lifecycler = {
           address = "127.0.0.1";
           ring = {
-            kvstore = {
-              store = "inmemory";
-            };
+            kvstore.store = "inmemory";
             replication_factor = 1;
           };
         };
@@ -407,10 +415,7 @@ in
           active_index_directory = "/var/lib/loki/tsdb-index";
           cache_location = "/var/lib/loki/tsdb-cache";
         };
-
-        filesystem = {
-          directory = "/var/lib/loki/chunks";
-        };
+        filesystem.directory = "/var/lib/loki/chunks";
       };
 
       limits_config = {
@@ -420,11 +425,7 @@ in
 
       compactor = {
         working_directory = "/var/lib/loki";
-        compactor_ring = {
-          kvstore = {
-            store = "inmemory";
-          };
-        };
+        compactor_ring.kvstore.store = "inmemory";
       };
     };
   };
@@ -439,9 +440,7 @@ in
         http_listen_port = 3031;
         grpc_listen_port = 0;
       };
-      positions = {
-        filename = "/tmp/positions.yaml";
-      };
+      positions.filename = "/tmp/positions.yaml";
       clients = [{
         url = "http://127.0.0.1:${toString config.services.loki.configuration.server.http_listen_port}/loki/api/v1/push";
       }];

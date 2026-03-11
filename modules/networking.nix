@@ -87,6 +87,7 @@
       #8888    #SearX
       139   # Samba
       445   # Samba
+      16509   # libvirtd API (virsh / virt-manager)
     ];
 
     allowedUDPPorts = [
@@ -98,7 +99,7 @@
       5353  # Samba WSDD/mDNS discovery
     ];
     # Trust Tailscale interface
-    trustedInterfaces = [ "tailscale0" "docker0" ];
+    trustedInterfaces = [ "tailscale0" "docker0" "virbr0" ];
     
     # Required for Tailscale NAT traversal
     checkReversePath = "loose";

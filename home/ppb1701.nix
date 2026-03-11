@@ -213,6 +213,15 @@
 ║   myip       - Public IP address                           ║
 ║   localip    - Local IP address                            ║
 ║   ports      - Open ports                                  ║
+╠════════════════════════════════════════════════════════════╣
+║ VM MANAGEMENT (iso-builder):                               ║
+║   vmls      - List all VMs and state                       ║
+║   vmstart   - Start iso-builder VM                         ║
+║   vmstop    - Graceful shutdown                            ║
+║   vmkill    - Hard stop (if shutdown hangs)                ║
+║   vminfo    - VM resources and status                      ║
+║   vmssh     - SSH into iso-builder (auto-resolves IP)      ║
+║   evm       - Edit modules/vm.nix                          ║
 ╚════════════════════════════════════════════════════════════╝
 "
    '';
@@ -247,6 +256,15 @@
    eny ="sudo micro /etc/nixos/private/notediscovery-config.yaml";
    enx ="sudo micro /etc/nixos/private/notediscovery-config.nix";
 
+   # VM management - iso-builder
+   vmls    = "sudo virsh list --all";
+   vmstart = "sudo virsh start iso-builder";
+   vmstop  = "sudo virsh shutdown iso-builder";
+   vmkill  = "sudo virsh destroy iso-builder";
+   vminfo  = "sudo virsh dominfo iso-builder";
+   vmssh = "ssh -p 2212 -o PasswordAuthentication=yes -o PubkeyAuthentication=no ppb1701@$(sudo virsh domifaddr iso-builder | awk '/ipv4/{split($4,a,\"/\");print a[1]}')";
+   evm     = "sudo micro /etc/nixos/modules/vm.nix";
+   
    # Git operations
    gc = "cd /etc/nixos && sudo git add . && sudo git commit";
    gp = "cd /etc/nixos && sudo git push";

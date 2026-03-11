@@ -32,7 +32,11 @@ in
       users = [];
 
       dns = {
-        bind_hosts = [ "0.0.0.0" ];
+        bind_hosts = [ 
+            "192.168.50.53"
+            "127.0.0.1"
+            "100.110.182.6"
+            ];
         port = 53;
 
         upstream_dns = [
@@ -79,7 +83,7 @@ in
         DOMAIN = "git.home";
         ROOT_URL = "http://git.home";
         HTTP_PORT = 3300;
-        HTTP_ADDR = "127.0.0.1";
+        HTTP_ADDR = "0.0.0.0";
       };
       security = {
         SECRET_KEY = lib.mkForce secrets.giteaSecret;
@@ -345,6 +349,16 @@ in
         "fruit:wipe_intentionally_left_blank_rfork" = "yes";
         "fruit:delete_empty_adfiles" = "yes";
       };
+      isos = {
+              "path"           = "/mnt/nextcloud-data/isos";
+              "comment"        = "NixOS ISO builds";
+              "browseable"     = "yes";
+              "writable"       = "yes";
+              "valid users"    = "ppb1701";
+              "create mask"    = "0644";
+              "directory mask" = "0755";
+              "vfs objects"    = "catia";
+            };
       timemachine = {
         "path" = "/mnt/nextcloud-data/timemachine";
         "browseable" = "yes";
