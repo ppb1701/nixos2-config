@@ -130,7 +130,17 @@ in
                 ping = "http://127.0.0.1:5000";
               };
             }
-          ]) ++
+          ])++
+          (lib.optionals (config.systemd.services ? x11vnc) [
+            {
+              "Remote Desktop" = {
+                description = "noVNC remote desktop";
+                href = "http://vnc2.home/vnc.html";
+                icon = "mdi-monitor-screenshot";
+                ping = "http://127.0.0.1:6080";
+              };
+            }
+          ])++
           (lib.optionals config.virtualisation.libvirtd.enable [
                       {
                         "ISO Builder VM" = {

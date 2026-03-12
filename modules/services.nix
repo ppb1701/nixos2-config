@@ -64,6 +64,37 @@ in
     };
   };
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # VNC / NOVNC - Remote Desktop Access
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  # x11vnc - connects to the running LXQT/X11 session
+  # Listens only on localhost, accessed via noVNC reverse proxy
+  systemd.services.x11vnc = {
+    enable = true;
+    description = "x11vnc VNC Server";
+    after = [ "display-manager.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.x11vnc}/bin/x11vnc -display :0 -auth /run/lightdm/root/:0 -forever -noxdamage -repeat -rfbauth /etc/nixos/private/vncpasswd -rfbport 5900 -shared -localhost";
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
+  };
+  
+  systemd.services.novnc = {
+    enable = true;
+    description = "noVNC Web Client";
+    after = [ "x11vnc.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.python3Packages.websockify}/bin/websockify --web ${pkgs.novnc}/share/webapps/novnc localhost:6080 localhost:5900";
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
+  };
   
   # ═══════════════════════════════════════════════════════════════════════════
   # GITEA - GIT HOSTING (PRIMARY INSTANCE)

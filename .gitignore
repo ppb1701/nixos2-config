@@ -36,3 +36,4 @@ private/notediscovery-config.yaml
 private/nextcloud-admin-pass
 private/vaultwarden.env
 private/restic-password
+private/vncpasswd

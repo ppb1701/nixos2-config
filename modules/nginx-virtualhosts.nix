@@ -13,6 +13,18 @@
         };
       };
 
+      # noVNC Remote Desktop
+      "vnc2.home" = {
+        locations."/" = {
+          proxyPass = "http://localhost:6080";
+          proxyWebsockets = true;  # required - noVNC uses websockets
+          extraConfig = ''
+            proxy_read_timeout 3600s;
+            proxy_send_timeout 3600s;
+          '';
+        };
+      };
+
       "collabora.home" = {
         locations."/" = {
           proxyPass = "http://127.0.0.1:9980";
