@@ -9,36 +9,21 @@
   # future VM/ISO storage (~1TB). ~2.5TB remains as buffer on the 6TB drive.
   # ═══════════════════════════════════════════════════════════════════════════
 
-  services.samba = {
+ services.samba = {
     enable = true;
-    securityType = "user";
-    extraConfig = ''
-      workgroup = WORKGROUP
-      server string = nixos2
-      server role = standalone server
-
-      # Apple extensions
-      fruit:metadata = stream
-      fruit:model = MacSamba
-      fruit:posix_rename = yes
-      fruit:veto_appledouble = no
-      fruit:wipe_intentionally_left_blank_rfork = yes
-      fruit:delete_empty_adfiles = yes
-    '';
-    shares.timemachine = {
-      path = "/mnt/nextcloud-data/timemachine";
-      browseable = "yes";
-      writable = "yes";
-      "valid users" = "tmuser";
-      "vfs objects" = "catia fruit streams_xattr";
-      "fruit:time machine" = "yes";
-      "fruit:time machine max size" = "2000G";
+    settings = {    
+      timemachine = {
+        path = "/mnt/nextcloud-data/timemachine";
+        browseable = "yes";
+        writable = "yes";
+        "valid users" = "tmuser";
+        "vfs objects" = "catia fruit streams_xattr";
+        "fruit:time machine" = "yes";
+        "fruit:time machine max size" = "2000G";
+      };
     };
   };
-
-  # Makes the share discoverable in Finder without manual Connect to Server
-  services.samba-wsdd.enable = true;
-
+ 
   # ═══════════════════════════════════════════════════════════════════════════
   # TIME MACHINE USER
   # ═══════════════════════════════════════════════════════════════════════════

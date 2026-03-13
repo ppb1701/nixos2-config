@@ -3,12 +3,6 @@ let
   secrets = import /etc/nixos/private/secrets.nix;
 in
 {
- imports = [
-    ./nginx-virtualhosts.nix
-    ./homepage.nix
-  ];
-
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # NIXOS2-SPECIFIC SERVICE CONFIGURATION - SECONDARY/BACKUP SERVER
@@ -366,12 +360,12 @@ in
   # Samba
   # ═══════════════════════════════════════════════════════════════════════════
   services.samba = {
-    enable = true;
-    securityType = "user";
+    enable = true;    
     settings = {
       global = {
         "workgroup" = "WORKGROUP";
         "server string" = "nixos2";
+        "security" = "user";
         "server role" = "standalone server";
         "fruit:metadata" = "stream";
         "fruit:model" = "MacSamba";
@@ -389,19 +383,11 @@ in
               "create mask"    = "0644";
               "directory mask" = "0755";
               "vfs objects"    = "catia";
-            };
-      timemachine = {
-        "path" = "/mnt/nextcloud-data/timemachine";
-        "browseable" = "yes";
-        "writable" = "yes";
-        "valid users" = "tmuser";
-        "vfs objects" = "catia fruit streams_xattr";
-        "fruit:time machine" = "yes";
-        "fruit:time machine max size" = "1500G";
-      };
+            };     
     };
   };
   
+  # Makes the share discoverable in Finder without manual Connect to Server
   services.samba-wsdd.enable = true;
 
   # ═══════════════════════════════════════════════════════════════════════════
