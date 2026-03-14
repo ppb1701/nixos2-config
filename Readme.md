@@ -48,6 +48,19 @@ This configuration uses a **temporary, publicly-known password** for initial con
 - **Tailscale:** Secure mesh VPN
   - Remote access to this server
 - **Nginx:** Reverse proxy for clean local URLs
+- **x11vnc + noVNC:** Remote desktop access via browser
+  - x11vnc connects to the running LXQT/X11 session (localhost:5900)
+  - noVNC serves a browser-based VNC client via websockify (port 6080)
+  - Access via http://YOUR_IP:6080/vnc.html — password-protected via `/etc/nixos/private/vncpasswd`
+  - Configured in `modules/services.nix`
+- **QEMU/libvirt VM host:** Hosts the iso-builder VM (nixos-config vm branch)
+  - VM produces custom NixOS ISOs, copies them to `/mnt/nextcloud-data/isos/` via virtiofs
+  - ISOs available on the network immediately via the `isos` Samba share
+  - Configured in `modules/vm.nix` — see `docs/VM-SETUP.md` for full setup
+- **Samba:** File shares accessible from any machine on the network
+  - `\\nixos2\isos` — ISO builds from the iso-builder VM (configured in `services.nix`)
+  - `\\nixos2\timemachine` — macOS Time Machine target on the 6TB SSD, capped at 2TB (configured in `timemachine.nix`)
+  - Global Samba config (workgroup, Apple extensions, security) lives in `services.nix`; the timemachine share and its dedicated user live in `timemachine.nix`
 
 ### Disabled Services (Failover-Ready)
 
@@ -161,28 +174,36 @@ Syncthing mirrors data from the primary server:
 nixos2-config/
 ├── configuration.nix              # Main system configuration
 ├── configuration-bios.nix         # BIOS/Legacy boot variant
-├── configuration-uefi.nix         # UEFI boot variant
+├── configuration-uefi.nix         # UEFI boot variant (used by install-nixos.sh for UEFI installs)
 ├── hardware-configuration.nix     # Hardware-specific settings
 ├── build-iso.sh                   # ISO build script
 ├── install-nixos.sh               # Automated installation script
+├── iso-config.nix                 # Custom ISO configuration
 ├── modules/
-│   ├── services.nix              # Service configurations (Gitea enabled, others failover-ready)
+│   ├── services.nix              # Service configurations (Gitea, x11vnc, noVNC, Samba global+isos, failover-ready services)
+│   ├── timemachine.nix           # Samba Time Machine share, tmuser, and directory setup
+│   ├── vm.nix                    # QEMU/libvirt VM host (iso-builder), virtiofsd, storage pools
 │   ├── homepage.nix              # Homepage Dashboard (service landing page with system monitoring)
-│   ├── nginx-virtualhosts.nix    # Nginx reverse proxy configuration
-│   ├── monitoring.nix            # Prometheus, Grafana, etc.
+│   ├── nginx-virtualhosts.nix    # Nginx reverse proxy virtual hosts
+│   ├── monitoring.nix            # Prometheus, Grafana, Alertmanager, Loki, Promtail
 │   ├── backups.nix               # Restic backup configuration
 │   ├── networking.nix            # Network & firewall settings
-│   ├── system.nix                # System packages, users, SSH
-│   ├── boot-bios.nix             # BIOS boot configuration
-│   └── boot-uefi.nix             # UEFI boot configuration
+│   ├── system.nix                # System packages, users, desktop, SSH
+│   ├── boot-bios.nix             # BIOS/GRUB boot configuration
+│   └── boot-uefi.nix             # UEFI/systemd-boot configuration
 ├── home/
 │   └── ppb1701.nix               # User environment (ZSH, aliases)
 ├── private/                       # Private config (gitignored)
 │   ├── secrets.nix               # Service passwords, Gitea secrets
 │   ├── ssh-keys.nix              # SSH authorized keys
 │   ├── syncthing-devices.nix     # Syncthing device IDs
+│   ├── vncpasswd                 # VNC password file (for x11vnc)
 │   └── alertmanager.env          # SMTP credentials
 ├── private-example/               # Example templates
+├── docs/
+│   ├── VM-SETUP.md               # iso-builder VM creation and virtiofs setup
+│   ├── SERVICES.md               # Service guide including x11vnc/noVNC and Samba
+│   └── TROUBLESHOOTING.md        # Common issues and solutions
 └── README.md                      # This file
 ```
 

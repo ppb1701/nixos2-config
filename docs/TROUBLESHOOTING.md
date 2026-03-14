@@ -215,6 +215,92 @@ sudo nixos-rebuild build
 sudo nixos-rebuild switch --rollback
 ```
 
+## ISO Build Issues
+
+### Missing Modules Cause Install Failure (`is too short to be a valid store path`)
+
+**Symptom:**
+```
+'nginx-virtualhosts.nix' is too short to be a valid store path
+```
+or the installed system fails to rebuild with a similar error after first boot.
+
+**Cause:** `iso-config.nix` lists every module file explicitly in `environment.etc`. If a new module is added to the repo but not added to that list, it won't be on the ISO. Additionally, if a module uses a relative import like `./nginx-virtualhosts.nix` instead of an absolute path, Nix lazy evaluation silently skips it while the referencing service is disabled — but as soon as evaluation order changes, it blows up.
+
+**Fix:**
+1. Ensure every module in any imports block is also listed in `iso-config.nix`
+2. Use absolute paths (`/etc/nixos/modules/...`) for all module imports in `services.nix` — not relative paths like `./modulename.nix`
+3. Rebuild the ISO after fixing and test on a fresh VM
+
+### Wrong Boot Config (`GRUB error: cannot find a GRUB drive`)
+
+**Symptom:** `nixos-rebuild switch` fails with GRUB not finding `/dev/sda` on a UEFI machine.
+
+**Cause:** `configuration-uefi.nix` has `boot-bios.nix` in its imports instead of `boot-uefi.nix` — a copy/paste error that's invisible until you try to rebuild.
+
+**Fix:** Open `configuration-uefi.nix` and check the boot import:
+```nix
+# Wrong
+"${modulesDir}/boot-bios.nix"
+
+# Correct
+"${modulesDir}/boot-uefi.nix"
+```
+
+## Samba Issues (nixos-unstable)
+
+### `services.samba.extraConfig` and `securityType` No Longer Work
+
+**Symptom:**
+```
+The option definition `services.samba.extraConfig' in `.../timemachine.nix'
+no longer has any effect; please remove it.
+Use services.samba.settings instead.
+```
+
+**Cause:** On nixos-unstable (circa 2025), `services.samba.extraConfig` was removed. `securityType` was also removed — security now lives inside `settings.global`.
+
+**Fix:**
+```nix
+services.samba = {
+  enable = true;
+  settings = {
+    global = {
+      workgroup = "WORKGROUP";
+      "server string" = "nixos2";
+      "server role" = "standalone server";
+      security = "user";
+      "fruit:metadata" = "stream";
+      "fruit:model" = "MacSamba";
+      "fruit:posix_rename" = "yes";
+      "fruit:veto_appledouble" = "no";
+      "fruit:wipe_intentionally_left_blank_rfork" = "yes";
+      "fruit:delete_empty_adfiles" = "yes";
+    };
+    isos = {
+      path = "/mnt/nextcloud-data/isos";
+      browseable = "yes";
+      writable = "yes";
+      "valid users" = "ppb1701";
+    };
+  };
+};
+```
+
+The `timemachine` share lives in `timemachine.nix` — NixOS merges `settings` across modules as long as no attribute has conflicting values in both files.
+
+### Duplicate Samba Share Attribute Conflict
+
+**Symptom:**
+```
+error: The option `services.samba.settings.timemachine."fruit:time machine max size"'
+has conflicting definition values
+```
+
+**Cause:** The same share was defined in two module files with different values.
+
+**Fix:** Each share should be owned by exactly one file. `global` block + `isos` share + `samba-wsdd` live in `services.nix`. The `timemachine` share + `tmuser` + directory live in `timemachine.nix`.
+
 ## NixOS Unstable Channel (Required by Collabora)
 
 ### Why Unstable?
