@@ -106,6 +106,10 @@ sudo nixos-rebuild switch
 
 ### From ISO
 
+**Download the latest ISO:**
+
+https://codeberg.org/ppb1701/nixos-config/releases/tag/nixos
+
 1. Boot from USB
 2. Login (user: `nixos`, password: `nixos`)
 3. Run: `sudo /etc/nixos-config/install-nixos.sh`
