@@ -16,7 +16,7 @@ This guide covers the services on nixos2, the secondary/backup server.
 
 ### Gitea (Port 3300) - PRIMARY
 
-Gitea is the main Git hosting server. Repositories here mirror to GitHub.
+Gitea is the main Git hosting server. Repositories here mirror to Codeberg.
 
 **Status:** ENABLED (Primary instance)
 
@@ -410,5 +410,5 @@ When returning to primary:
 ## See Also
 
 For detailed service documentation, see the primary server docs:
-- [nixos-config/docs/SERVICES.md](https://github.com/ppb1701/nixos-config/blob/main/docs/SERVICES.md)
-- [nixos-config/docs/NEXTCLOUD-SETUP.md](https://github.com/ppb1701/nixos-config/blob/main/docs/NEXTCLOUD-SETUP.md)
+- [nixos-config/docs/SERVICES.md](https://codeberg.org/ppb1701/nixos-config/blob/main/docs/SERVICES.md)
+- [nixos-config/docs/NEXTCLOUD-SETUP.md](https://codeberg.org/ppb1701/nixos-config/blob/main/docs/NEXTCLOUD-SETUP.md)

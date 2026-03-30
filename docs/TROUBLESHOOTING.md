@@ -43,8 +43,8 @@ sudo nginx -t
 cd /var/lib/gitea/repositories/USER/REPO.git
 git remote -v
 
-# Test push to GitHub
-git push --mirror github
+# Test push to Codeberg
+git push --mirror codeberg
 ```
 
 ### Database Issues (SQLite)
@@ -509,4 +509,4 @@ sudo nextcloud-occ config:app:delete richdocuments public_wopi_url
 ## See Also
 
 For more detailed troubleshooting, see:
-- [nixos-config/docs/TROUBLESHOOTING.md](https://github.com/ppb1701/nixos-config/blob/main/docs/TROUBLESHOOTING.md)
+- [nixos-config/docs/TROUBLESHOOTING.md](https://codeberg.org/ppb1701/nixos-config/blob/main/docs/TROUBLESHOOTING.md)

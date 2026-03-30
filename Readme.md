@@ -1,12 +1,12 @@
 # NixOS2 - Secondary/Backup Server
 
-A fully declarative, reproducible NixOS server configured as a **secondary/backup server** with failover capability. This is the companion to the primary [nixos-config](https://github.com/ppb1701/nixos-config) server.
+A fully declarative, reproducible NixOS server configured as a **secondary/backup server** with failover capability. This is the companion to the primary [nixos-config](https://codeberg.org/ppb1701/nixos-config) server.
 
 ## Server Role
 
 **This is NIXOS2 - the secondary server in a two-server setup:**
 
-- **Primary Git Server:** Gitea runs HERE (mirrors to GitHub)
+- **Primary Git Server:** Gitea runs HERE (mirrors to Codeberg)
 - **Backup/Failover:** Most services are disabled but fully configured for quick failover
 - **Data Replication:** Syncthing mirrors data from the primary server
 - **Redundant DNS:** AdGuard Home provides backup DNS filtering
@@ -40,7 +40,7 @@ This configuration uses a **temporary, publicly-known password** for initial con
   - Real-time CPU, memory, and disk usage widgets
   - Web UI at http://home2.home or port 8582
 - **Gitea:** Self-hosted Git server (PRIMARY INSTANCE)
-  - This is the main Git server, mirrors to GitHub
+  - This is the main Git server, mirrors to Codeberg
   - Web UI at http://git.home or port 3300
 - **Syncthing:** Cross-platform file synchronization
   - Mirrors data from primary server for disaster recovery
@@ -97,7 +97,7 @@ sudo nixos-rebuild switch
 On an existing NixOS system:
 
 ```bash
-git clone https://github.com/ppb1701/nixos2-config /etc/nixos
+git clone https://codeberg.org/ppb1701/nixos2-config /etc/nixos
 cd /etc/nixos
 sudo nixos-rebuild switch
 ```
@@ -273,7 +273,7 @@ sudo nix-store --optimize
 
 ## Related Repositories
 
-- **Primary Server:** [nixos-config](https://github.com/ppb1701/nixos-config) - Main production server
+- **Primary Server:** [nixos-config](https://codeberg.org/ppb1701/nixos-config) - Main production server
 - **Blog:** https://blog.ppb1701.com/building-a-resilient-home-server-series
 
 ## License
